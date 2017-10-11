@@ -24,6 +24,7 @@ After this command *gomemcache* is ready to use. Its source will be in:
          mc.Set(&memcache.Item{Key: "foo", Value: []byte("my value")})
 
          it, err := mc.Get("foo")
+         stats,err := mc.Get_stats("stats")
          ...
     }
 
