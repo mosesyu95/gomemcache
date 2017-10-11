@@ -683,7 +683,7 @@ func (c *Client) incrDecr(verb, key string, delta uint64) (uint64, error) {
 	return val, err
 }
 
-func (c *Client) Get_stats(key string) (item string, err error) {
+func (c *Client) Get_stats() (item string, err error) {
 	err = c.selector.Each(func(addr net.Addr) error {
 		return c.getStatsFromAddr(addr, func(it []string) { item = strings.Join(it,"\n") })
 	})
