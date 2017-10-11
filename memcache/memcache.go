@@ -682,3 +682,37 @@ func (c *Client) incrDecr(verb, key string, delta uint64) (uint64, error) {
 	})
 	return val, err
 }
+
+func (c *Client) Get_stats(key string) (item string, err error) {
+	err = c.withKeyAddr(key, func(addr net.Addr) error {
+		return c.getStatsFromAddr(addr, func(it []string) { item = strings.Join(it,"\n") })
+	})
+	if err == nil && item == "" {
+		err = ErrCacheMiss
+	}
+	return
+}
+
+func (c *Client) getStatsFromAddr(addr net.Addr, cb func([]string)) error {
+	return c.withAddrRw(addr, func(rw *bufio.ReadWriter) error {
+		if _, err := fmt.Fprintf(rw, "stats\r\n"); err != nil {
+			return err
+		}
+		if err := rw.Flush(); err != nil {
+			return err
+		}
+		result:=[]string{}
+		for {
+			line, err := rw.ReadString('\n')
+			if err != nil {
+				return err
+			}
+			if line == "END\r\n"{
+				break
+			}
+			result = append(result,line)
+		}
+		cb(result)
+		return nil
+	})
+}
